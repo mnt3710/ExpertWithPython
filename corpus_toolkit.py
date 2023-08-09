@@ -13,6 +13,7 @@ import operator
 import math
 #for writing modified corpus files
 import os
+import shutil
 
 
 def write_corpus(dirname,new_dirname,corpus,ending = "txt"):
@@ -391,12 +392,69 @@ def high_val(stat_dict,hits = 20,hsort = True,output = False,filename = None, se
 #high_list = high_val(corp_freq,output = True)
 #high_val(corp_freq,filename = "top_freq.txt")
 
+def find_least_similar_corpus(dir_name, question_corpus_name, extension=".txt", convert_to_lower=True):
 
+  with open(os.path.join(dir_name, question_corpus_name + extension), 'r', errors="ignore") as q_file:
+    question_corpus_text = q_file.read()
 
+  question_corpus_text = question_corpus_text.lower() if convert_to_lower else question_corpus_text
+  question_corpus_tokens = tokenize(question_corpus_text)
+  question_corpus_lemmatized = lemmatize(question_corpus_tokens)
+  question_corpus_freq = corpus_frequency(question_corpus_lemmatized)
+  sorted_question_corpus_freq = dict(sorted(question_corpus_freq.items(), key=lambda item: item[1], reverse=True))
 
+  file_paths = glob.glob(os.path.join(dir_name, "*" + extension))
 
+  least_similarity = None
+  least_similar_file = None
 
+  corpus_text_list = []
 
+  for file_path in file_paths:
+    if question_corpus_name + extension == file_path:
+      continue
+
+    with open(file_path, 'r', errors="ignore") as file:
+      corpus_text = file.read()
+
+    corpus_text = corpus_text.lower() if convert_to_lower else corpus_text
+    corpus_text_list = corpus_text.split()
+    corpus_tokens = tokenize(corpus_text_list)
+    corpus_lemmatized = lemmatize(corpus_tokens)
+    corpus_freq = corpus_frequency(corpus_lemmatized)
+    sorted_corpus_freq = dict(sorted(corpus_freq.items(), key=lambda item: item[1], reverse=True))
+
+    print("Top 20 words of " + file_path + '\n')
+    cnt = 0
+    for word, freq in sorted_corpus_freq.items():
+      print(word + ":" + str(freq))
+      cnt += 1
+      if cnt == 20:
+        print('\n----------------------------\n')
+        break
+
+    similarity_score = sum(sorted_question_corpus_freq.get(word, 0) * freq for word, freq in sorted_corpus_freq.items())
+
+    if least_similarity is None or similarity_score < least_similarity:
+      least_similarity = similarity_score
+      least_similar_file = file_path
+
+  if least_similar_file:
+    print("The least similar data set is " + least_similar_file)
+    print("Do you want to exclude " + least_similar_file + "?")
+    rep = input("y / n : ")
+
+    if rep == "y":
+      source_file = os.path.join(dir_name, least_similar_file)
+      destination_file = os.path.join("removed", least_similar_file)
+      shutil.move(source_file, destination_file)
+
+      if os.path.exists(destination_file):
+        print("Successfully removed the file in the 'removed' directory")
+      else:
+        print("Failed to remove the file")
+  else:
+    print("No files found in the directory")
 
 
 
