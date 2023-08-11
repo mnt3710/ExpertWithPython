@@ -427,7 +427,7 @@ def find_least_similar_corpus(dir_name, question_corpus_name, extension=".txt", 
     print("Top 20 words of " + file_path + '\n')
     cnt = 0
     for word, freq in sorted_corpus_freq.items():
-      print(word + ":" + str(freq))
+      print(f"{word:13s} : {freq}")
       cnt += 1
       if cnt == 20:
         print('\n----------------------------\n')
@@ -456,7 +456,135 @@ def find_least_similar_corpus(dir_name, question_corpus_name, extension=".txt", 
   else:
     print("No files found in the directory")
 
+def display_context(corpus):
+  while True:
+    print('\n\nInput the word or string you wish to search for (Exit: -1)\n\nsearch word : ', end = "")
+    search_input = input()
 
+    if search_input == '-1':
+      break
+
+    search_words = search_input.lower().split()
+    search_is_single_word = len(search_words) == 1
+
+    line_num = 1
+    print()
+    for text in corpus:
+      for i, word in enumerate(text):
+        if search_is_single_word and search_words[0] == word.lower():
+          display_surrounding_words(text, i, line_num)
+          line_num = line_num + 1
+        elif not search_is_single_word and matches_string_sequence(text[i:], search_words):
+          display_surrounding_words(text, i, line_num)
+          line_num = line_num + 1
+
+    if line_num == 1:
+      print("No matching results found in the corpus.")
+
+def matches_string_sequence(tokens, search_sequence):
+  for i, word in enumerate(tokens):
+    if i >= len(search_sequence):
+      return True
+    if word.lower() != search_sequence[i]:
+      return False
+  return len(tokens) >= len(search_sequence)
+
+def display_surrounding_words(tokens, index, line_num):
+  start_index = max(index - 6, 0)
+  end_index = min(index + 7, len(tokens))
+  print(f"{str(line_num):3s}", end=" :  ")
+  for word in tokens[start_index:end_index]:
+    print(word, end=' ')
+
+  print('')
+
+def search_pos_patterns(corpus):
+  pos_patterns_all = set()  # All POS patterns following the target word
+  pos_patterns_unique = set()  # A set containing unique POS patterns following the target word
+
+  print()
+  print('Search for POS patterns following the target word.')
+
+  while True:
+    print('\n\nInput the word you wish to search for (Exit: -1)\n\nsearch word : ', end="")
+    search_word = input()
+
+    if search_word == '-1':
+      break
+
+    for text in corpus:
+      for i, word in enumerate(text):
+        if (search_word + '_') in word:
+          if i + 1 < len(text):
+            pos_patterns_all.add(text[i + 1])
+
+    for pattern in pos_patterns_all:
+      index = pattern.find('_')
+      pos = pattern[index + 1:]
+      pos_patterns_unique.add(pos)
+
+    for pos in pos_patterns_unique:
+      print(pos)
+
+    pos_patterns_all.clear()  # Clear to avoid affecting the next data
+    pos_patterns_unique.clear()
+
+def pos_least(pos, count, dir):
+  sum_values = [0] * len(pos)
+  index = get_question_data_index(dir)
+
+  for i in range(len(pos)):
+    if index == i:
+      continue
+    for j in range(len(pos[index])):
+      for k in range(len(pos[i])):
+        if pos[index][j] == pos[i][k]:
+          sum_values[i] += count[i][k]
+
+  min_value = sum_values[0]
+  min_file_index = 0
+
+  if index == 0:
+    min_value = sum_values[1]
+    min_file_index = 1
+
+  for i in range(1, len(sum_values)):
+    if index == i:
+      continue
+    if min_value > sum_values[i]:
+      min_file_index = i
+      min_value = sum_values[i]
+
+  file_list = os.listdir(dir)
+  least_similar_file = file_list[min_file_index]
+
+  print('Least similar data set is ' + least_similar_file)
+
+  user_response = input("Do you want to rule out " + least_similar_file + "? (y/n): ")
+  if user_response.lower() == "y":
+    source_file = os.path.join(dir, least_similar_file)
+    destination_file = os.path.join("removed", least_similar_file)
+
+    try:
+      shutil.move(source_file, destination_file)
+      if os.path.exists(destination_file):
+        print("Successfully removed file in the 'removed' directory")
+      else:
+        print("Failed to remove file")
+    except Exception as e:
+      print("An error occurred:", str(e))
+
+def get_question_data_index(dir):
+  while True:
+    q_name = input("Input the question corpus file name included extension (Exit = -1): ")
+    if q_name == '-1':
+      exit()
+
+    file_list = os.listdir(dir)
+    if q_name in file_list:
+      return file_list.index(q_name)
+    else:
+      print('File does not exist')
 
 
 

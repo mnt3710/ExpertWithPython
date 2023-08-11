@@ -7,7 +7,7 @@ import glob
 # feature 3
 print("Input the name of the directory containing the corpus file.")
 """ dir_name = input() """
-dir_name = "COCA_sample_text"
+dir_name = "Datasets"
 
 if(not os.path.isdir(dir_name)):
   print(dir_name + " doesn't exist. \nInput the name of a directory that exists.")
@@ -28,7 +28,19 @@ ct.high_val(lemma_greq)
 
 print("Input the question corpus file name.")
 """ file_name = input() """
-question_corpus_name="w_acad_1990"
+file_name="Q dataset"
 
-ct.find_least_similar_corpus(dir_name, question_corpus_name)
+ct.find_least_similar_corpus(dir_name, file_name)
 
+ct.write_corpus(dir_name, dir_name + "_lemmas",word_lemmatized)
+
+# feature 13
+word_upos = tg.tag_corpus(dir_name)
+
+ct.write_corpus(dir_name ,dir_name + "_tagged",word_upos)
+
+ct.display_context(word_lemmatized)
+ct.search_pos_patterns(word_upos)
+pos, count = tg.count_pos_patterns(word_lemmatized, dir_name)
+
+""" ct.pos_least(pos, count, dir_name) """

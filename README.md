@@ -10,3 +10,7 @@ python3 -m venv .venv
 pip install spacy
 python -m spacy download en_core_web_sm
 ```
+
+```
+python3 main.py
+```
