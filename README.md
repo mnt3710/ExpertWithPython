@@ -33,3 +33,10 @@ python3 main.py
 12. suggest ruling out the least similiar dataset
 
 ## describe the expert system code
+<img width="837" alt="image" src="https://github.com/mnt3710/ExpertWithPython/assets/70579191/a4004980-005d-466a-94b4-7e5589428e0c">
+<img width="526" alt="image" src="https://github.com/mnt3710/ExpertWithPython/assets/70579191/8405699c-f1c6-4120-8b0d-4a7203f47179">
+<img width="429" alt="image" src="https://github.com/mnt3710/ExpertWithPython/assets/70579191/0302bf16-a591-451b-b69b-72bc0d55c98f">
+<img width="722" alt="image" src="https://github.com/mnt3710/ExpertWithPython/assets/70579191/fc805483-8429-4050-87c9-a51d91dfaa8d">
+<img width="442" alt="image" src="https://github.com/mnt3710/ExpertWithPython/assets/70579191/787670e2-5df8-4888-8ad7-a44a94826491">
+
+
